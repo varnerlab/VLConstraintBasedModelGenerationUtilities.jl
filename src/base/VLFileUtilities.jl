@@ -18,16 +18,16 @@ function build_gene_table(path_to_gene_file::String;
         end
 
         # create a data frame -
-        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String,BioSequences.LongDNASeq}[])
-        sequence_data_record = Union{String,Missing,BioSequences.LongDNASeq}[]
+        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String, Missing, BioSequences.LongDNASeq}[])
+        sequence_data_record = Union{String, Missing, BioSequences.LongDNASeq}[]
         for record in local_data_row
             
+            # get attributes from record -
             id_value = FASTX.FASTA.identifier(record)
             description_value = FASTX.FASTA.description(record)
             sequence_value = FASTX.FASTA.sequence(record)
             
-            @show (id_value, description_value, sequence_value)
-
+            # pack -
             push!(sequence_data_record, id_value)
             push!(sequence_data_record, description_value)
             push!(sequence_data_record, sequence_value)
@@ -66,6 +66,38 @@ function build_protein_table(path_to_protein_file::String;
     logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
+
+        # initialize -
+        local_data_row = Union{String,Symbol,Missing,FASTA.Record}[]
+
+        # ok - lets load the gene file
+        open(FASTA.Reader, path_to_protein_file) do reader
+            for record in reader
+                push!(local_data_row, record)
+            end
+        end
+
+        # create a data frame -
+        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String, Missing, BioSequences.LongSequence}[])
+        for record in local_data_row
+
+            # init a row -
+            sequence_data_record = Union{String, Missing, BioSequences.LongSequence}[]
+            
+            # get attributes from record -
+            id_value = FASTX.FASTA.identifier(record)
+            description_value = FASTX.FASTA.description(record)
+            sequence_value = FASTX.FASTA.sequence(record)
+            
+            # pack -
+            push!(sequence_data_record, id_value)
+            push!(sequence_data_record, description_value)
+            push!(sequence_data_record, sequence_value)
+            push!(sequence_data_frame, tuple(sequence_data_record...))
+        end
+
+        # return -
+        return VLResult(sequence_data_frame)
     catch error
         return VLResult(error)
     end
