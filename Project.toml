@@ -1,0 +1,4 @@
+name = "VLConstraintBasedModelGenerationUtilities"
+uuid = "d81e55dd-dcbd-44fb-a01f-ee5b8692a939"
+authors = ["Jeffrey Varner <jdv27@cornell.edu>"]
+version = "0.1.0"
