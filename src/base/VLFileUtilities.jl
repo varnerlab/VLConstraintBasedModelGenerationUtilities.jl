@@ -18,8 +18,8 @@ function build_gene_table(path_to_gene_file::String;
         end
 
         # create a data frame -
-        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String, Missing, BioSequences.LongDNASeq}[])
-        sequence_data_record = Union{String, Missing, BioSequences.LongDNASeq}[]
+        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String, Missing, BioSequences.LongSequence}[])
+        sequence_data_record = Union{String, Missing, BioSequences.LongSequence}[]
         for record in local_data_row
             
             # get attributes from record -
