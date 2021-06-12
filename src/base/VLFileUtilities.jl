@@ -18,8 +18,8 @@ function build_gene_table(path_to_gene_file::String;
         end
 
         # create a data frame -
-        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String,Missing,BioSequences.LongSequence}[])
-        sequence_data_record = Union{String,Missing,BioSequences.LongSequence}[]
+        sequence_data_frame = DataFrame(id=String[], description=String[], gene_sequence=Union{Missing,BioSequences.LongSequence}[])
+        sequence_data_record = Union{String, Missing, BioSequences.LongSequence}[]
         for record in local_data_row
             
             # get attributes from record -
@@ -78,11 +78,11 @@ function build_protein_table(path_to_protein_file::String;
         end
 
         # create a data frame -
-        sequence_data_frame = DataFrame(id=String[], description=String[], sequence=Union{String,Missing,BioSequences.LongSequence}[])
+        sequence_data_frame = DataFrame(id=String[], description=String[], protein_sequence=Union{Missing,BioSequences.LongSequence}[])
         for record in local_data_row
 
             # init a row -
-            sequence_data_record = Union{String,Missing,BioSequences.LongSequence}[]
+            sequence_data_record = Union{String, Missing,BioSequences.LongSequence}[]
             
             # get attributes from record -
             id_value = FASTX.FASTA.identifier(record)
