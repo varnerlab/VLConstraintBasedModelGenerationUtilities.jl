@@ -2,12 +2,12 @@ using VLConstraintBasedModelGenerationUtilities
 using Test
 
 # -- Model creation tests ------------------------------------------------------ #
-function build_grn_model_test() 
+function run_default_test() 
     return true
 end
 # ------------------------------------------------------------------------------- #
 
 
-@testset "model_creation_test_set" begin
-    @test build_grn_model_test() == true
+@testset "default_test_set" begin
+    @test run_default_test() == true
 end
