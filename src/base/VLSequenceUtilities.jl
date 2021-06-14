@@ -16,26 +16,19 @@ function build_translation_reaction_table(table::DataFrame; ribosomeSymbol::Symb
     end
 end
 
-function transcribe_sequence(sequence::BioSequences.LongSequence; 
+function transcribe_sequence(sequence::BioSequences.LongSequence, complementOperation::Function;
     logger::Union{Nothing,SimpleLogger}=nothing)
 
     try
+
+        # ok: let's iterate the sequence, 
+
     catch error
         return VLResult(error)
     end
 end
 
-function translate_sequence(sequence::BioSequences.LongSequence; 
-    logger::Union{Nothing,SimpleLogger}=nothing)
-
-
-    try
-    catch error
-        return VLResult(error)
-    end
-end
-
-function transcribe_sequence(table::DataFrame; 
+function transcribe_sequence(table::DataFrame, complementOperation::Function; 
     logger::Union{Nothing,SimpleLogger}=nothing)
 
     try
@@ -52,7 +45,7 @@ function transcribe_sequence(table::DataFrame;
             sequence = table[row_index, :sequence]
 
             # transcribe -
-            result = transcribe_sequence(sequence; logger=logger) |> check
+            result = transcribe_sequence(sequence, complementOperation; logger=logger) |> check
 
             # package -
             transcription_dictionary[sequence_id] = result
@@ -65,7 +58,16 @@ function transcribe_sequence(table::DataFrame;
     end
 end
 
-function translate_sequence(table::DataFrame; 
+function translate_sequence(sequence::BioSequences.LongSequence, complementOperation::Function;
+    logger::Union{Nothing,SimpleLogger}=nothing)
+
+    try
+    catch error
+        return VLResult(error)
+    end
+end
+
+function translate_sequence(table::DataFrame, complementOperation::Function;
     logger::Union{Nothing,SimpleLogger}=nothing)
 
 
