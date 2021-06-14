@@ -1,4 +1,21 @@
 import Base.+
+import Base.!
+
+function !(nucleotide::BioSymbols.DNA)::BioSymbols.DNA
+
+    # ok: use watson-crick base pairing rules to return the opposite nucleotide
+    if nucleotide == DNA_A
+        return DNA_T
+    elseif nucleotide == DNA_T
+        return DNA_A
+    elseif nucleotide == DNA_G
+        return DNA_C
+    elseif nucleotide == DNA_C
+        return DNA_G
+    else
+        return DNA_N
+    end
+end
 
 function +(buffer::Array{String,1}, content::String; 
     prefix::Union{String,Nothing}=nothing,suffix::Union{String,Nothing}=nothing)

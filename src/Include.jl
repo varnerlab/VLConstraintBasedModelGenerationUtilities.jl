@@ -7,6 +7,7 @@ using Test
 using DataFrames
 using CSV
 using BioSequences
+using BioSymbols
 using FASTX
 using DelimitedFiles
 using Logging

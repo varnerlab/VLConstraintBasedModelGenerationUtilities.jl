@@ -16,13 +16,29 @@ function build_translation_reaction_table(table::DataFrame; ribosomeSymbol::Symb
     end
 end
 
-function transcribe_sequence(sequence::BioSequences.LongSequence, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)
+function transcribe_sequence(sequence::BioSequences.LongSequence, complementOperation::Function = !, 
+    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
 
-        # ok: let's iterate the sequence, 
+        # initialize -
+        new_sequence_array = Array{BioSymbol,1}()
 
+        # ok: let's iterate the sequence, call the complementOperation function for each nt -
+        for nt in sequence
+
+            # call the complementOperation function to get the complementary nucleotide -
+            complementary_nt = complementOperation(nt)
+
+            # push -
+            push!(new_sequence_array, complementary_nt)
+        end
+
+        # create new sequence -
+        new_seq_from_array = LongSequence{DNAAlphabet{4}}(new_sequence_array)
+
+        # return -
+        return VLResult(new_seq_from_array)
     catch error
         return VLResult(error)
     end

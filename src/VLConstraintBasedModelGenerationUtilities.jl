@@ -14,6 +14,7 @@ export build_translation_reaction_table
 export transcribe_sequence
 export translate_sequence
 
-
+# export complement function -
+export !
 
 end # module

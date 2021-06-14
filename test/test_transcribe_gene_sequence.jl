@@ -7,5 +7,9 @@ path_to_gene_sequence_file = "/Users/jeffreyvarner/Desktop/julia_work/VLConstrai
 gene_table = build_gene_table(path_to_gene_sequence_file) |> check
 
 # get the sequence -
-seq = gene_table[!,:gene_sequence][1]
+gene_seq = gene_table[!,:gene_sequence][1]
+
+# let's transcribe this gene sequence to mRNA -
+complemtary_seq = transcribe_sequence(gene_seq) |> check
+
 
