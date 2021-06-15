@@ -1,19 +1,21 @@
+using Base: has_nondefault_cmd_flags
 import Base.+
 import Base.!
+import Base.count
 
-function !(nucleotide::BioSymbols.DNA)::BioSymbols.DNA
+function !(nucleotide::BioSymbols.DNA)::BioSymbols.RNA
 
     # ok: use watson-crick base pairing rules to return the opposite nucleotide
-    if nucleotide == DNA_A
-        return DNA_T
-    elseif nucleotide == DNA_T
-        return DNA_A
-    elseif nucleotide == DNA_G
-        return DNA_C
+    if nucleotide == DNA_T
+        return RNA_A
+    elseif nucleotide == DNA_A
+        return RNA_U
     elseif nucleotide == DNA_C
-        return DNA_G
+        return RNA_G
+    elseif nucleotide == DNA_G
+        return RNA_C
     else
-        return DNA_N
+        return RNA_N
     end
 end
 
@@ -65,4 +67,20 @@ function check(result::VLResult)::(Union{Nothing,T} where T <: Any)
 
     # default -
     return result.value
+end
+
+function count(sequence::BioSequences.LongSequence, bioSymbol::BioSymbol)::Int64
+
+    # initialize -
+    number_of_biosymbols = 0
+    
+    # iterate -
+    for test_symbol in sequence
+        if (test_symbol == bioSymbol)
+            number_of_biosymbols = number_of_biosymbols + 1
+        end
+    end
+
+    # return -
+    return number_of_biosymbols
 end
