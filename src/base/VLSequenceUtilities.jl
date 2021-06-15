@@ -1,7 +1,11 @@
 function build_transcription_reaction_table(table::DataFrame; polymeraseSymbol::Symbol=:RNAP, 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    ecnumber::String="EC 2.7.7.6", logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
+
+        # initialize -
+        reaction_table = DataFrame(id=String[], forward=String[], reverse=String[], )
+
     catch error
         return VLResult(error)
     end
@@ -16,7 +20,7 @@ function build_translation_reaction_table(table::DataFrame; ribosomeSymbol::Symb
     end
 end
 
-function transcribe_sequence(sequence::BioSequences.LongSequence, complementOperation::Function = !, 
+function transcribe_sequence(sequence::BioSequences.LongSequence, complementOperation::Function=!, 
     logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
@@ -44,7 +48,7 @@ function transcribe_sequence(sequence::BioSequences.LongSequence, complementOper
     end
 end
 
-function transcribe_sequence(table::DataFrame, complementOperation::Function; 
+function transcribe_sequence(table::DataFrame, complementOperation::Function=!; 
     logger::Union{Nothing,SimpleLogger}=nothing)
 
     try
