@@ -153,7 +153,78 @@ function build_transport_reaction_table()::VLResult
             AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
         ];
 
-        # add exchange reactions -
+        # add exchange water reactions -
+        push!(id_array, "M_h2o_c_exchange")
+        push!(forward_reaction_string, "M_h2o_e")
+        push!(reverse_reaction_string, "M_h2o_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_ppi_e exchange -
+        push!(id_array, "M_ppi_c_exchange")
+        push!(forward_reaction_string, "M_ppi_e")
+        push!(reverse_reaction_string, "M_ppi_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_amp_c exchange -
+        push!(id_array, "M_amp_c_exchange")
+        push!(forward_reaction_string, "M_amp_e")
+        push!(reverse_reaction_string, "M_amp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_gmp_c exchange -
+        push!(id_array, "M_gmp_c_exchange")
+        push!(forward_reaction_string, "M_gmp_e")
+        push!(reverse_reaction_string, "M_gmp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_cmp_c exchange -
+        push!(id_array, "M_cmp_c_exchange")
+        push!(forward_reaction_string, "M_cmp_e")
+        push!(reverse_reaction_string, "M_cmp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_ump_c exchange -
+        push!(id_array, "M_ump_c_exchange")
+        push!(forward_reaction_string, "M_ump_e")
+        push!(reverse_reaction_string, "M_ump_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+
+        # add M_atp_c exchange -
+        push!(id_array, "M_atp_c_exchange")
+        push!(forward_reaction_string, "M_atp_e")
+        push!(reverse_reaction_string, "M_atp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_gtp_c exchange -
+        push!(id_array, "M_gtp_c_exchange")
+        push!(forward_reaction_string, "M_gtp_e")
+        push!(reverse_reaction_string, "M_gtp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_ctp_c exchange -
+        push!(id_array, "M_ctp_c_exchange")
+        push!(forward_reaction_string, "M_ctp_e")
+        push!(reverse_reaction_string, "M_ctp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # add M_utp_c exchange -
+        push!(id_array, "M_utp_c_exchange")
+        push!(forward_reaction_string, "M_utp_e")
+        push!(reverse_reaction_string, "M_utp_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        
         push!(id_array, "tRNA_c_exchange")
         push!(forward_reaction_string, "tRNA_e")
         push!(reverse_reaction_string, "tRNA_c")
