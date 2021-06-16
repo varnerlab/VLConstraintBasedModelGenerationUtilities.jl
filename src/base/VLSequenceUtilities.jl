@@ -1,5 +1,5 @@
 function build_transcription_reaction_table(gene_name::String, sequence::BioSequences.LongSequence; 
-    polymeraseSymbol::Symbol=:RNAP, ecnumber::String="EC 2.7.7.6", logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    polymeraseSymbol::Symbol=:RNAP, ecnumber::String="2.7.7.6", logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
 
@@ -18,7 +18,7 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         number_of_G = count(sequence, DNA_G)
         total_nucleotides = number_of_A + number_of_U + number_of_C + number_of_G
         
-        # setup reaction -
+        # setup reactions -
         # gene + RNAP <=> gene_RNAP_closed
         push!(id_array, "$(gene_name)_binding")
         push!(forward_reaction_string, "$(gene_name)+$(polymeraseSymbol)")
@@ -58,24 +58,131 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
 end
 
 function build_translation_reaction_table(protein_name::String, sequence::BioSequences.LongAminoAcidSeq; 
-    ribosomeSymbol::Symbol=:RIBOSOME, logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    ribosomeSymbol::Symbol=:RIBOSOME, ecnumber::String="3.1.27.10", logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
 
         # initailize -
+        id_array = String[]
+        forward_reaction_string = String[]
+        reverse_reaction_string = String[]
+        reversibility_array = Bool[]
+        ec_number_array = Union{Missing,String}[]
+        ribosomeSymbol = string(ribosomeSymbol)
+        total_residue_count = 0
         protein_aa_map = Dict{BioSymbol, Int64}()
         aa_biosymbol_array = [
-            AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V, AA_X
+            AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
         ];
+
+        # load AA map -
+        aa_metabolite_map = TOML.parsefile(joinpath(_PATH_TO_CONFIG, "AAMap.toml"))
 
         # build the protein_aa_map -
         for residue in aa_biosymbol_array
             protein_aa_map[residue] = count(sequence, residue)
         end
 
+        # total residue count -
+        for residue in aa_biosymbol_array
+            number_per_AA = protein_aa_map[residue]
+            total_residue_count = total_residue_count + number_per_AA
+        end
         
+        # setup reactions -
+        # mRNA + RIBOSOME <=> mRNA_RIBOSOME_closed
+        push!(id_array, "$(protein_name)_binding")
+        push!(forward_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)")
+        push!(reverse_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_closed")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # mRNA_RIBOSOME_closed => mRNA_RIBOSOME_start
+        push!(id_array, "mRNA_$(protein_name)_open")
+        push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_closed")
+        push!(reverse_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start")
+        push!(reversibility_array, false)
+        push!(ec_number_array, missing)
+
+        # mRNA_RIBOSOME_translation -
+        push!(id_array, "mRNA_$(protein_name)_translation")
+        push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start+$(2*total_residue_count)*M_gtp_c+$(2*total_residue_count)*M_h2o_c")
+        push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2*total_residue_count)*M_gdp_c+$(2*total_residue_count)*M_pi_c+$(total_residue_count)*tRNA")
+        push!(reversibility_array, false)
+        push!(ec_number_array, missing)
+
+        # charge the tRNA -
+        for residue in aa_biosymbol_array
+            
+            # get the key symbol -
+            key_value = "AA_"*(string(residue))
+
+            # get the number and M_* of this residue -
+            number_of_AA_residue = protein_aa_map[residue]
+            metabolite_symbol = aa_metabolite_map[key_value]
+
+            # build the reaction record -
+            push!(id_array, "tRNA_charging_$(metabolite_symbol)_$(protein_name)")            
+            push!(forward_reaction_string, "$(number_of_AA_residue)*$(metabolite_symbol)+$(number_of_AA_residue)*M_atp_c+$(number_of_AA_residue)*tRNA_c+$(number_of_AA_residue)*M_h2o_c")
+            push!(reverse_reaction_string, "$(number_of_AA_residue)*$(metabolite_symbol)_tRNA_c+$(number_of_AA_residue)*M_amp_c+$(number_of_AA_residue)*M_ppi_c")
+            push!(reversibility_array, false)
+            push!(ec_number_array, missing)
+        end
+
+        # package into DataFrame -
+        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
+
         # return -
-        return VLResult(protein_aa_map)
+        return VLResult(reaction_dataframe)
+    catch error
+        return VLResult(error)
+    end
+end
+
+function build_transport_reaction_table()::VLResult
+
+    try
+
+        # initailize -
+        id_array = String[]
+        forward_reaction_string = String[]
+        reverse_reaction_string = String[]
+        reversibility_array = Bool[]
+        ec_number_array = Union{Missing,String}[]
+        aa_biosymbol_array = [
+            AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
+        ];
+
+        # add exchange reactions -
+        push!(id_array, "tRNA_c_exchange")
+        push!(forward_reaction_string, "tRNA_e")
+        push!(reverse_reaction_string, "tRNA_c")
+        push!(reversibility_array, true)
+        push!(ec_number_array, missing)
+
+        # transfer AAs -
+        for residue in aa_biosymbol_array
+            
+            # get the key symbol -
+            key_value = "AA_"*(string(residue))
+
+            # metabilite -
+            metabolite_symbol_c = aa_metabolite_map[key_value]
+            metabolite_symbol_e = replace(metabolite_symbol_c, "_c"=>"_e")
+
+            # write the record -
+            push!(id_array, "$(metabolite_symbol_c)_exchange")
+            push!(forward_reaction_string, metabolite_symbol_e)
+            push!(reverse_reaction_string, metabolite_symbol_c)
+            push!(reversibility_array, true)
+            push!(ec_number_array, missing)
+        end
+
+        # package into DataFrame -
+        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
+
+        # return -
+        return VLResult(reaction_dataframe)
     catch error
         return VLResult(error)
     end
@@ -140,7 +247,7 @@ function transcribe(table::DataFrame, complementOperation::Function=!;
 end
 
 function translate(sequence::BioSequences.LongAminoAcidSeq, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)
+    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
     catch error
@@ -149,7 +256,7 @@ function translate(sequence::BioSequences.LongAminoAcidSeq, complementOperation:
 end
 
 function translate(table::DataFrame, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)
+    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
 
     try

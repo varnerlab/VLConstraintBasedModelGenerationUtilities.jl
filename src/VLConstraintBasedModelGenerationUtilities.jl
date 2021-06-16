@@ -11,6 +11,7 @@ export build_protein_table
 export build_metabolic_reaction_table
 export build_transcription_reaction_table
 export build_translation_reaction_table
+export build_transport_reaction_table
 export transcribe
 export translate
 export count
