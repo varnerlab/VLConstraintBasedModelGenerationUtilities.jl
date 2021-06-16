@@ -107,7 +107,7 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         # mRNA_RIBOSOME_translation -
         push!(id_array, "mRNA_$(protein_name)_translation")
         push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start+$(2*total_residue_count)*M_gtp_c+$(2*total_residue_count)*M_h2o_c")
-        push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2*total_residue_count)*M_gdp_c+$(2*total_residue_count)*M_pi_c+$(total_residue_count)*tRNA")
+        push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2*total_residue_count)*M_gdp_c+$(2*total_residue_count)*M_pi_c+$(total_residue_count)*tRNA_c")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
 
