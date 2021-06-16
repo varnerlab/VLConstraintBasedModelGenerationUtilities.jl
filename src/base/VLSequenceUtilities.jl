@@ -23,28 +23,28 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(id_array, "$(gene_name)_binding")
         push!(forward_reaction_string, "$(gene_name)+$(polymeraseSymbol)")
         push!(reverse_reaction_string, "$(gene_name)_$(polymeraseSymbol)_closed")
-        push!(reversibility_array,true)
+        push!(reversibility_array, true)
         push!(ec_number_array, missing)
 
         # gene_RNAP_closed => gene_RNAP_open
         push!(id_array, "$(gene_name)_open")
         push!(forward_reaction_string, "$(gene_name)_$(polymeraseSymbol)_closed")
         push!(reverse_reaction_string, "$(gene_name)_$(polymeraseSymbol)_open")
-        push!(reversibility_array,false)
+        push!(reversibility_array, false)
         push!(ec_number_array, missing)
 
         # transcription -
         push!(id_array, "$(gene_name)_transcription")
         push!(forward_reaction_string, "$(gene_name)_$(polymeraseSymbol)_open+$(number_of_A)*M_atp_c+$(number_of_U)*M_utp_c+$(number_of_C)*M_ctp_c+$(number_of_G)*M_gtp_c+$(total_nucleotides)*M_h2o_c")
         push!(reverse_reaction_string, "mRNA_$(gene_name)+$(gene_name)+$(polymeraseSymbol)+$(total_nucleotides)*M_ppi_c")
-        push!(reversibility_array,false)
+        push!(reversibility_array, false)
         push!(ec_number_array, ecnumber)
 
         # mRNA degradation -
         push!(id_array, "mRNA_$(gene_name)_degradation")
         push!(forward_reaction_string, "mRNA_$(gene_name)")
         push!(reverse_reaction_string, "$(number_of_A)*M_amp_c+$(number_of_U)*M_ump_c+$(number_of_C)*M_cmp_c+$(number_of_G)*M_gmp_c")
-        push!(reversibility_array,false)
+        push!(reversibility_array, false)
         push!(ec_number_array, missing)
 
         # package into DataFrame -
@@ -66,7 +66,7 @@ function build_translation_reaction_table(table::DataFrame; ribosomeSymbol::Symb
     end
 end
 
-function transcribe_sequence(sequence::BioSequences.LongSequence, complementOperation::Function=!, 
+function transcribe_sequence(sequence::BioSequences.LongSequence; complementOperation::Function=!, 
     logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
@@ -85,7 +85,7 @@ function transcribe_sequence(sequence::BioSequences.LongSequence, complementOper
         end
 
         # create new sequence -
-        new_seq_from_array = LongSequence{DNAAlphabet{4}}(new_sequence_array)
+        new_seq_from_array = LongSequence{RNAAlphabet{4}}(new_sequence_array)
 
         # return -
         return VLResult(new_seq_from_array)
