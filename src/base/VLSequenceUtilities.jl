@@ -57,16 +57,31 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
     end
 end
 
-function build_translation_reaction_table(table::DataFrame; ribosomeSymbol::Symbol=:RIBOSOME, 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+function build_translation_reaction_table(protein_name::String, sequence::BioSequences.LongAminoAcidSeq; 
+    ribosomeSymbol::Symbol=:RIBOSOME, logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
+
+        # initailize -
+        protein_aa_map = Dict{BioSymbol, Int64}()
+        aa_biosymbol_array = [
+            AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V, AA_X
+        ];
+
+        # build the protein_aa_map -
+        for residue in aa_biosymbol_array
+            protein_aa_map[residue] = count(sequence, residue)
+        end
+
+        
+        # return -
+        return VLResult(protein_aa_map)
     catch error
         return VLResult(error)
     end
 end
 
-function transcribe_sequence(sequence::BioSequences.LongSequence; complementOperation::Function=!, 
+function transcribe(sequence::BioSequences.LongSequence; complementOperation::Function=!, 
     logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
 
     try
@@ -94,7 +109,7 @@ function transcribe_sequence(sequence::BioSequences.LongSequence; complementOper
     end
 end
 
-function transcribe_sequence(table::DataFrame, complementOperation::Function=!; 
+function transcribe(table::DataFrame, complementOperation::Function=!; 
     logger::Union{Nothing,SimpleLogger}=nothing)
 
     try
@@ -124,7 +139,7 @@ function transcribe_sequence(table::DataFrame, complementOperation::Function=!;
     end
 end
 
-function translate_sequence(sequence::BioSequences.LongSequence, complementOperation::Function;
+function translate(sequence::BioSequences.LongAminoAcidSeq, complementOperation::Function;
     logger::Union{Nothing,SimpleLogger}=nothing)
 
     try
@@ -133,11 +148,20 @@ function translate_sequence(sequence::BioSequences.LongSequence, complementOpera
     end
 end
 
-function translate_sequence(table::DataFrame, complementOperation::Function;
+function translate(table::DataFrame, complementOperation::Function;
     logger::Union{Nothing,SimpleLogger}=nothing)
 
 
     try
+
+        # get the size of the table -
+        (number_of_proteins, _) = size(table)
+        for protein_index in number_of_proteins
+            
+            # get the sequence -
+            protein_seq = table[protein_index, :protein_sequence]
+        end
+
     catch error
         return VLResult(error)
     end

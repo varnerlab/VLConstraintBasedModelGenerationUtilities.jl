@@ -27,4 +27,4 @@ function complementOp(nucleotide::BioSymbols.DNA)::BioSymbols.RNA
 end
 
 # table -
-transcription_table = transcribe_sequence(gene_seq; complementOperation=complementOp) |> check
+transcription_table = transcribe(gene_seq; complementOperation=complementOp) |> check
