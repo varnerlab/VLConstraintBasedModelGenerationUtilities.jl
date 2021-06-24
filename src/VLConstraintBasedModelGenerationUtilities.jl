@@ -16,6 +16,11 @@ export transcribe
 export translate
 export count
 
+# metabolic methods -
+export build_reaction_id_array
+export build_flux_bounds_array
+export build_species_symbol_array
+
 # export complement function -
 export !
 

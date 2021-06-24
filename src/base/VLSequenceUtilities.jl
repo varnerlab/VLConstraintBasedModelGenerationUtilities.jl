@@ -70,7 +70,7 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         ec_number_array = Union{Missing,String}[]
         ribosomeSymbol = string(ribosomeSymbol)
         total_residue_count = 0
-        protein_aa_map = Dict{BioSymbol, Int64}()
+        protein_aa_map = Dict{BioSymbol,Int64}()
         aa_biosymbol_array = [
             AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
         ];
@@ -106,8 +106,8 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
 
         # mRNA_RIBOSOME_translation -
         push!(id_array, "mRNA_$(protein_name)_translation")
-        push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start+$(2*total_residue_count)*M_gtp_c+$(2*total_residue_count)*M_h2o_c")
-        push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2*total_residue_count)*M_gdp_c+$(2*total_residue_count)*M_pi_c+$(total_residue_count)*tRNA_c")
+        push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start+$(2 * total_residue_count)*M_gtp_c+$(2 * total_residue_count)*M_h2o_c")
+        push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2 * total_residue_count)*M_gdp_c+$(2 * total_residue_count)*M_pi_c+$(total_residue_count)*tRNA_c")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
 
@@ -115,7 +115,7 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         for residue in aa_biosymbol_array
             
             # get the key symbol -
-            key_value = "AA_"*(string(residue))
+            key_value = "AA_" * (string(residue))
 
             # get the number and M_* of this residue -
             number_of_AA_residue = protein_aa_map[residue]
@@ -238,11 +238,11 @@ function build_transport_reaction_table()::VLResult
         for residue in aa_biosymbol_array
             
             # get the key symbol -
-            key_value = "AA_"*(string(residue))
+            key_value = "AA_" * (string(residue))
 
             # metabilite -
             metabolite_symbol_c = aa_metabolite_map[key_value]
-            metabolite_symbol_e = replace(metabolite_symbol_c, "_c"=>"_e")
+            metabolite_symbol_e = replace(metabolite_symbol_c, "_c" => "_e")
 
             # write the record -
             push!(id_array, "$(metabolite_symbol_c)_exchange")

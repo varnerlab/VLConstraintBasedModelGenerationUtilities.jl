@@ -13,6 +13,7 @@ using BioSymbols
 using FASTX
 using DelimitedFiles
 using Logging
+using BSON
 
 # load my codes ...
 include(joinpath(_PATH_TO_BASE, "VLTypes.jl"))
