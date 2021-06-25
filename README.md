@@ -1,4 +1,4 @@
-![CI](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtlities.jl/workflows/CI/badge.svg?branch=master)
+![CI](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtlities.jl/workflows/CI/badge.svg?branch=main)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://varnerlab.github.io/VLConstraintBasedModelGenerationUtilities.jl/stable)
 
 ## Introduction
