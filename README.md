@@ -1,3 +1,6 @@
+![CI](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtlities.jl/workflows/CI/badge.svg?branch=master)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://varnerlab.github.io/VLConstraintBasedModelGenerationUtilities.jl/stable)
+
 ## Introduction
 ``VLConstraintBasedModelGenerationUtlities.jl`` is a [Julia](https://julialang.org/downloads/) package holding constraint based model generation utility type functions and types. 
 

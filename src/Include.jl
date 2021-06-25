@@ -8,6 +8,7 @@ using Test
 using TOML
 using DataFrames
 using CSV
+using JSON
 using BioSequences
 using BioSymbols
 using FASTX
