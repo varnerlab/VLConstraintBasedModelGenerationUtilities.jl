@@ -39,6 +39,22 @@ function +(buffer::Array{String,1}, content::String;
     push!(buffer,new_line)
 end
 
+function read_file_from_path(path_to_file::String)::Array{String,1}
+
+    # initialize -
+    buffer = String[]
+
+    # Read in the file -
+    open("$(path_to_file)", "r") do file
+        for line in eachline(file)
+            +(buffer,line)
+        end
+    end
+
+    # return -
+    return buffer
+end
+
 function +(buffer::Array{String,1}, content_array::Array{String,1})
     for line in content_array
         push!(buffer, line)
