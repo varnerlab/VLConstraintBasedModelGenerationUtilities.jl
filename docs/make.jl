@@ -18,5 +18,5 @@ makedocs(
 deploydocs(
     repo = "github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl.git",
     devurl = "stable",
-    devbranch = "main,
+    devbranch = "main",
 )
