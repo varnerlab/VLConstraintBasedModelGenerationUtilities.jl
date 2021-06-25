@@ -15,3 +15,34 @@ R_fdp,[3.1.3.11],M_fdp_c+M_h2o_c,M_f6p_c+M_pi_c,false
 
 // Fructose-1,6-bisphosphatase (fbaA) 4.1.2.13
 R_fbaA,[4.1.2.13],M_fdp_c,M_dhap_c+M_g3p_c,true
+
+// Triosphosphate isomerase (tpiA) 5.3.1.1
+R_tpiA,[5.3.1.1],M_dhap_c,M_g3p_c,true
+
+// glycerol-3-phosphate dehydrogenase (gpsA) 1.1.1.94
+R_gpsA,[1.1.1.94],M_dhap_c+M_nadph_c+M_h_c,M_gly3p_c+M_nadp_c,true
+
+// Glyceraldehyde-3-phosphate dehydrogenase (gapA) 1.2.1.12
+R_gapA,[1.2.1.12],M_g3p_c+M_nad_c+M_pi_c,M_13dpg_c+M_h_c+M_nadh_c,true
+
+// Phosphoglycerate kinase (pgk) 2.7.2.3
+R_pgk,[2.7.2.3],M_13dpg_c+M_adp_c,M_3pg_c+M_atp_c,true
+
+// Phosphoglycerate mutase (gpm) 5.4.2.11
+R_gpm,[5.4.2.11],M_3pg_c,M_2pg_c,true
+
+// Enolase (eno) 4.2.1.11
+R_eno,[4.2.1.11],M_2pg_c,M_h2o_c+M_pep_c,true
+
+// Pyruvate kinase (pykAF) 2.7.1.40
+R_pyk,[2.7.1.40],M_adp_c+M_pep_c,M_atp_c+M_pyr_c,false
+
+// PEP carboxykinase (pck) 4.1.1.49
+R_pck,[4.1.1.49],M_atp_c+M_oaa_c,M_adp_c+M_co2_c+M_pep_c,false
+
+// PEP carboxylase (ppc) 4.1.1.31
+R_ppc,[4.1.1.31],M_co2_c+M_h2o_c+M_pep_c,M_oaa_c+M_pi_c,false
+
+// Pyruvate dehydrogenase (pdh) 1.2.1.4 2.3.1.12 1.8.1.4
+R_pdh,[1.2.1.4; 2.3.1.12; 1.8.1.4],M_coa_c+M_nad_c+M_pyr_c,M_accoa_c+M_co2_c+M_nadh_c+M_h_c,false
+
