@@ -20,3 +20,9 @@ or
 
 	$ git clone https://github.com/varnerlab/VLConstraintBasedModelGenerationUtlities.jl.git
 
+## How do I contribute to this package?
+[Fork the project](https://guides.github.com/activities/forking/) and go crazy with it!
+Check out [Rob Allen's DevNotes](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/)
+for a beginner's guide to contributing to a GitHub project to get started. 
+
+
