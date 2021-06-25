@@ -3,7 +3,7 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://varnerlab.github.io/VLConstraintBasedModelGenerationUtilities.jl/)
 
 ## Introduction
-``VLConstraintBasedModelGenerationUtlities.jl`` is a [Julia](https://julialang.org/downloads/) package holding constraint based model generation utility type functions and types. 
+``VLConstraintBasedModelGenerationUtlities.jl`` is a [Julia](https://julialang.org/downloads/) package holding constraint based model generation utility functions and types. 
 
 ## Installation and requirements
 ``VLConstraintBasedModelGenerationUtlities.jl`` is organized as a [Julia](http://julialang.org) package which can be installed in the ``package mode`` of Julia.
