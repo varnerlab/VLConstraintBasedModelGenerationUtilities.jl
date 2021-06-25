@@ -1,4 +1,4 @@
-![CI](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/workflows/CI/badge.svg)
+[![CI](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/varnerlab.yml/badge.svg?event=push)](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/varnerlab.yml)
 [![Documentation](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/docdeploy.yml/badge.svg?event=push)](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/docdeploy.yml)
 
 ## Introduction
