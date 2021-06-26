@@ -1,6 +1,6 @@
 [![CI](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/varnerlab.yml/badge.svg?event=push)](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/varnerlab.yml)
 [![Documentation](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/docdeploy.yml/badge.svg?event=push)](https://github.com/varnerlab/VLConstraintBasedModelGenerationUtilities.jl/actions/workflows/docdeploy.yml)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://varnerlab.github.io/VLConstraintBasedModelGenerationUtilities.jl/stage)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://varnerlab.github.io/VLConstraintBasedModelGenerationUtilities.jl/stable)
 
 ## Introduction
 ``VLConstraintBasedModelGenerationUtlities.jl`` is a [Julia](https://julialang.org/downloads/) package holding constraint based model generation utility functions and types. 
