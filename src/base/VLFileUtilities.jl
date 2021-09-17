@@ -266,18 +266,20 @@ function build_metabolic_reaction_table(path_to_reaction_file::String;
 end
 
 function write_system_model_file(;path::String, stoichiometric_matrix::Array{Float64,2}, species_bounds_array::Array{Float64,2}, 
-    flux_bounds_array::Array{Float64,2}, reaction_table::Union{DataFrame,Nothing}=nothing)::Some
+    flux_bounds_array::Array{Float64,2}, reaction_table::Union{DataFrame,Nothing}=nothing, objective_coefficient_array::Array{Float64,1})::Some
 
     try
 
         # initialize -
-        system_dictionary = Dict{String,Union{Array{Float64,2},DataFrame,Nothing}}()
+        system_dictionary = Dict{String,Union{Array{Float64,2},DataFrame,Bool,Nothing}}()
         
         # pack stuff into the dictionary -
         system_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
         system_dictionary["species_bounds_array"] = species_bounds_array
         system_dictionary["flux_bounds_array"] = flux_bounds_array
         system_dictionary["reaction_table"] = reaction_table
+        system_dictionary["objective_coefficient_array"] = objective_coefficient_array
+        system_dictionary["is_minimum_flag"] = true
 
         # write -
         bson(path, system=system_dictionary)

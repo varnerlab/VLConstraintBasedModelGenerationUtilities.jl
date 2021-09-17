@@ -11,6 +11,7 @@ export build_metabolic_reaction_table
 export build_transcription_reaction_table
 export build_translation_reaction_table
 export build_transport_reaction_table
+export build_txtl_transport_reaction_table
 export transcribe
 export translate
 export count
@@ -23,6 +24,7 @@ export build_species_bounds_array
 export build_species_table
 export build_species_symbol_table
 export build_stoichiometric_matrix
+export build_objective_coefficient_array
 
 # file io methods -
 export write_system_model_file

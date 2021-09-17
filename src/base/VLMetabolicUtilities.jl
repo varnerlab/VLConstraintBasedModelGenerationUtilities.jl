@@ -286,6 +286,30 @@ function build_species_symbol_array(reactionTable::DataFrame)::Some
     end
 end
 
+function build_objective_coefficient_array(reactionTable::DataFrame)::Some
+
+    try
+
+        # initialize -
+        (number_of_reactions, _) = size(reactionTable)
+
+        # default behavior -
+        obj_coeff_array = zeros(number_of_reactions)
+        
+        # return -
+        return Some(obj_coeff_array)
+
+    catch error
+
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
 function build_reaction_id_array(reactionTable::DataFrame)::Some
 
     try
@@ -297,6 +321,23 @@ function build_reaction_id_array(reactionTable::DataFrame)::Some
         return Some(id_col)
     catch error
         
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
+function build_transport_reaction_table()::Some
+
+    try
+
+        # how do we want to encode this ...
+
+    catch error
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)

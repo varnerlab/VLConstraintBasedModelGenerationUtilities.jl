@@ -174,7 +174,7 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
     end
 end
 
-function build_transport_reaction_table()::Some
+function build_txtl_transport_reaction_table()::Some
 
     try
 
