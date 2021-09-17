@@ -4,7 +4,6 @@ module VLConstraintBasedModelGenerationUtilities
 include("Include.jl")
 
 # export methods and types -
-export VLResult
 export check
 export build_gene_table
 export build_protein_table
@@ -20,7 +19,13 @@ export count
 export build_reaction_id_array
 export build_flux_bounds_array
 export build_species_symbol_array
+export build_species_bounds_array
+export build_species_table
+export build_species_symbol_table
 export build_stoichiometric_matrix
+
+# file io methods -
+export write_system_model_file
 
 # private: but has a unit test
 # export extract_stochiometric_coefficient_from_phrase

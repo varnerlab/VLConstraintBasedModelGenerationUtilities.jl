@@ -61,20 +61,20 @@ function +(buffer::Array{String,1}, content_array::Array{String,1})
     end
 end
 
-function check(result::VLResult)::(Union{Nothing,T} where T <: Any)
+function check(result::Some)::(Union{Nothing,T} where T <: Any)
 
     # ok, so check, do we have an error object?
     # Yes: log the error if we have a logger, then throw the error. 
     # No: return the result.value
 
      # Error case -
-    if (isa(result.value, Exception) == true)
+    if (isa(something(result), Exception) == true)
         
         # get the error object -
         error_object = result.value
 
         # get the error message as a String -
-        error_message = sprint(showerror, error_object, backtrace())
+        error_message = sprint(showerror, error_object, catch_backtrace())
         @error(error_message)
 
         # throw -

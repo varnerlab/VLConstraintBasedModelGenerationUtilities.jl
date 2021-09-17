@@ -12,7 +12,7 @@ gene_seq = gene_table[!,:gene_sequence][1]
 gene_seq_name = gene_table[!,:id][1]
 
 # transcription table -
-transcription_table = build_transcription_reaction_table(gene_seq_name, gene_seq) |> check
+transcription_table = build_transcription_reaction_table(gene_seq_name, gene_seq; polymeraseSymbol=:RdRp) |> check
 
 # setup path to protein sequence file -
 path_to_protein_sequence_file = "/Users/jeffreyvarner/Desktop/julia_work/VLConstraintBasedModelGenerationUtilities.jl/test/data/P-MZ373340.fasta"

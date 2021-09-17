@@ -1,5 +1,5 @@
 function build_transcription_reaction_table(gene_name::String, sequence::BioSequences.LongSequence; 
-    polymeraseSymbol::Symbol=:RNAP, ecnumber::String="2.7.7.6", logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    polymeraseSymbol::Symbol=:RNAP, ecnumber::String="2.7.7.6", logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -51,14 +51,20 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
 
         # return -
-        return VLResult(reaction_dataframe)
+        return Some(reaction_dataframe)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function build_translation_reaction_table(protein_name::String, sequence::BioSequences.LongAminoAcidSeq; 
-    ribosomeSymbol::Symbol=:RIBOSOME, ecnumber::String="3.1.27.10", logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    ribosomeSymbol::Symbol=:RIBOSOME, ecnumber::String="3.1.27.10", logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -133,13 +139,18 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
 
         # return -
-        return VLResult(reaction_dataframe)
+        return Some(reaction_dataframe)
     catch error
-        return VLResult(error)
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
-function build_transport_reaction_table()::VLResult
+function build_transport_reaction_table()::Some
 
     try
 
@@ -256,14 +267,20 @@ function build_transport_reaction_table()::VLResult
         reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
 
         # return -
-        return VLResult(reaction_dataframe)
+        return Some(reaction_dataframe)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function transcribe(sequence::BioSequences.LongSequence; complementOperation::Function=!, 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -284,9 +301,15 @@ function transcribe(sequence::BioSequences.LongSequence; complementOperation::Fu
         new_seq_from_array = LongSequence{RNAAlphabet{4}}(new_sequence_array)
 
         # return -
-        return VLResult(new_seq_from_array)
+        return Some(new_seq_from_array)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
@@ -314,23 +337,35 @@ function transcribe(table::DataFrame, complementOperation::Function=!;
         end
 
         # return -
-        return VLResult(transcription_dictionary)
+        return Some(transcription_dictionary)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function translate(sequence::BioSequences.LongAminoAcidSeq, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function translate(table::DataFrame, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
 
     try
@@ -344,6 +379,12 @@ function translate(table::DataFrame, complementOperation::Function;
         end
 
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end

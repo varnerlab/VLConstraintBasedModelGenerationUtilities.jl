@@ -71,13 +71,13 @@ end
 # == PRIVATE METHODS ABOVE HERE ======================================================================================= #
 
 # == PUBLIC METHODS BELOW HERE ======================================================================================== #
-function build_stoichiometric_matrix(reactionTable::DataFrame)::VLResult
+function build_stoichiometric_matrix(reactionTable::DataFrame, speciesSymbolArray::Array{String,1})::Some
 
-    try 
+    try
 
         # initialize -
         reaction_id_array = build_reaction_id_array(reactionTable) |> check
-        species_symbol_array = build_species_symbol_array(reactionTable) |> check
+        species_symbol_array = speciesSymbolArray
         number_of_reactions = length(reaction_id_array)
         number_of_species = length(species_symbol_array)
         stoichiometric_matrx = zeros(number_of_species, number_of_reactions)
@@ -107,13 +107,38 @@ function build_stoichiometric_matrix(reactionTable::DataFrame)::VLResult
         end
 
         # return -
-        return VLResult(stoichiometric_matrx)
+        return Some(stoichiometric_matrx)
     catch error
-        return VLResult(error)
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
-function build_flux_bounds_array(reactionTable::DataFrame; defaultFluxBoundValue::Float64=100.0)::VLResult
+function build_stoichiometric_matrix(reactionTable::DataFrame)::Some
+
+    try 
+
+        # initialize -
+        species_symbol_array = build_species_symbol_array(reactionTable) |> check
+        stoichiometric_matrx = build_stoichiometric_matrix(reactionTable, species_symbol_array) |> check
+
+        # return -
+        return Some(stoichiometric_matrx)
+    catch error
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
+function build_flux_bounds_array(reactionTable::DataFrame; defaultFluxBoundValue::Float64=100.0)::Some
 
     try
         
@@ -138,21 +163,82 @@ function build_flux_bounds_array(reactionTable::DataFrame; defaultFluxBoundValue
         end
 
         # return -
-        return VLResult(flux_bounds_array)
+        return Some(flux_bounds_array)
     catch error
-        return VLResult(error)
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
-function build_species_bounds_array()::VLResult
+function build_species_bounds_array(speciesTable::DataFrame)::Some
 
     try 
+
+        # initialize -
+        (number_of_species, _) = size(speciesTable)
+        species_bounds_array = Array{Float64,2}(undef, number_of_species, 2)
+
+        # main -
+        for species_index = 1:number_of_species
+            
+            # get data for bounds array -
+            lower_bound = speciesTable[species_index, :lower_bound]
+            upper_bound = speciesTable[species_index, :upper_bound]
+
+            # package -
+            species_bounds_array[species_index,1] = lower_bound
+            species_bounds_array[species_index,2] = upper_bound
+        end
+
+        # return -
+        return Some(species_bounds_array)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
-function build_species_symbol_array(reactionTable::DataFrame)::VLResult
+function build_species_table(reactionTable::DataFrame)::Some
+
+    try
+
+        # initialize -
+        species_symbol_array = build_species_symbol_array(reactionTable) |> check
+        df_species_table = DataFrame(symbol=String[], name=Union{String,Missing}[], lower_bound=Float64[], upper_bound=Float64[])
+
+        # main -
+        for species_symbol in species_symbol_array
+            
+            # create a tuple w/the data row -
+            data_row = (species_symbol, missing, 0.0, 0.0)
+            
+            # add to the df -
+            push!(df_species_table, data_row)
+        end
+
+        # return -
+        return Some(df_species_table)
+    catch error
+
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
+function build_species_symbol_array(reactionTable::DataFrame)::Some
 
     try
         
@@ -188,13 +274,19 @@ function build_species_symbol_array(reactionTable::DataFrame)::VLResult
         end
 
         # return -
-        return VLResult(species_symbol_array)
+        return Some(species_symbol_array)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
-function build_reaction_id_array(reactionTable::DataFrame)::VLResult
+function build_reaction_id_array(reactionTable::DataFrame)::Some
 
     try
         
@@ -202,9 +294,15 @@ function build_reaction_id_array(reactionTable::DataFrame)::VLResult
         id_col = reactionTable[!,:id]
     
         # return -
-        return VLResult(id_col)
+        return Some(id_col)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 # == PUBLIC METHODS ABOVE HERE ======================================================================================== #

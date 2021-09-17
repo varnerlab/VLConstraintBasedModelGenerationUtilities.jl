@@ -64,7 +64,7 @@ end
 
 # === PUBLIC METHODS BELOW HERE ==================================================================== #
 function build_gene_table(path_to_gene_file::String; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -96,9 +96,15 @@ function build_gene_table(path_to_gene_file::String;
         end
 
         # return -
-        return VLResult(sequence_data_frame)
+        return Some(sequence_data_frame)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
@@ -117,14 +123,20 @@ function build_gene_table(gene_path_array::Array{String,1};
         end
 
         # return a dictionary of gene tables -
-        return VLResult(gene_table_dictionary)
+        return Some(gene_table_dictionary)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function build_protein_table(path_to_protein_file::String; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -158,14 +170,20 @@ function build_protein_table(path_to_protein_file::String;
         end
 
         # return -
-        return VLResult(sequence_data_frame)
+        return Some(sequence_data_frame)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function build_protein_table(protein_path_array::Array{String,1}; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -179,14 +197,20 @@ function build_protein_table(protein_path_array::Array{String,1};
         end
 
         # return a dictionary of protein tables -
-        return VLResult(protein_table_dictionary)
+        return Some(protein_table_dictionary)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 
 function build_metabolic_reaction_table(path_to_reaction_file::String; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::VLResult
+    logger::Union{Nothing,SimpleLogger}=nothing)::Some
 
     try
 
@@ -217,9 +241,45 @@ function build_metabolic_reaction_table(path_to_reaction_file::String;
         end
 
         # return -
-        return VLResult(reaction_table)
+        return Some(reaction_table)
     catch error
-        return VLResult(error)
+        
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
+function write_system_model_file(;path::String, stoichiometric_matrix::Array{Float64,2}, species_bounds_array::Array{Float64,2}, 
+    flux_bounds_array::Array{Float64,2}, reaction_table::Union{DataFrame,Nothing}=nothing)::Some
+
+    try
+
+        # initialize -
+        system_dictionary = Dict{String,Union{Array{Float64,2},DataFrame,Nothing}}()
+        
+        # pack stuff into the dictionary -
+        system_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
+        system_dictionary["species_bounds_array"] = species_bounds_array
+        system_dictionary["flux_bounds_array"] = flux_bounds_array
+        system_dictionary["reaction_table"] = reaction_table
+
+        # write -
+        bson(path, system=system_dictionary)
+
+        # return -
+        return Some(nothing)
+    catch error
+
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
     end
 end
 # === PUBLIC METHODS ABOVE HERE ==================================================================== #
