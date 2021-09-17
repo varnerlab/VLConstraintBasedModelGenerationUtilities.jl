@@ -10,6 +10,8 @@ function _build_vff_reaction_table(path_to_reaction_file::String)::DataFrame
     reverse_reaction_string = String[]
     reversibility_array = Bool[]
     ec_number_array = Union{Missing,String}[]
+    lower_bound_array = Union{Missing,Float64}[]
+    upper_bound_array = Union{Missing,Float64}[]
 
     # get file buffer (array of strings) -
     vff_file_buffer = read_file_from_path(path_to_reaction_file)
@@ -43,12 +45,22 @@ function _build_vff_reaction_table(path_to_reaction_file::String)::DataFrame
             push!(reverse_reaction_string, string(reaction_record_components_array[4]))
 
             # 5: reverse -
-            push!(reversibility_array, parse(Bool, string(reaction_record_components_array[5])))
+            is_reversible = parse(Bool, string(reaction_record_components_array[5]))
+            push!(reversibility_array, is_reversible)
+
+            # lower bound and upper bound -
+            if (is_reversible == true)
+                push!(lower_bound_array, -Inf)
+            else
+                push!(lower_bound_array, 0.0)
+            end
+            push!(upper_bound_array, Inf)
         end
     end
 
     # build the df -
-    df_metabolic_reactions = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
+    df_metabolic_reactions = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
+        ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
     # return -
     return df_metabolic_reactions

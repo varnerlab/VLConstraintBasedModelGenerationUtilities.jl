@@ -9,6 +9,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         reverse_reaction_string = String[]
         reversibility_array = Bool[]
         ec_number_array = Union{Missing,String}[]
+        lower_bound_array = Union{Missing,Float64}[]
+        upper_bound_array = Union{Missing,Float64}[]
         polymeraseSymbol = string(polymeraseSymbol)
 
         # get a count on G,C,A,U -    
@@ -25,6 +27,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(reverse_reaction_string, "$(gene_name)_$(polymeraseSymbol)_closed")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # gene_RNAP_closed => gene_RNAP_open
         push!(id_array, "$(gene_name)_open")
@@ -32,6 +36,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(reverse_reaction_string, "$(gene_name)_$(polymeraseSymbol)_open")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, 0.0)
+        push!(upper_bound_array, Inf)
 
         # transcription -
         push!(id_array, "$(gene_name)_transcription")
@@ -39,6 +45,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(reverse_reaction_string, "mRNA_$(gene_name)+$(gene_name)+$(polymeraseSymbol)+$(total_nucleotides)*M_ppi_c")
         push!(reversibility_array, false)
         push!(ec_number_array, ecnumber)
+        push!(lower_bound_array, 0.0)
+        push!(upper_bound_array, Inf)
 
         # mRNA degradation -
         push!(id_array, "mRNA_$(gene_name)_degradation")
@@ -46,9 +54,12 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(reverse_reaction_string, "$(number_of_A)*M_amp_c+$(number_of_U)*M_ump_c+$(number_of_C)*M_cmp_c+$(number_of_G)*M_gmp_c")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, 0.0)
+        push!(upper_bound_array, Inf)
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
+        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
+            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
@@ -74,6 +85,8 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         reverse_reaction_string = String[]
         reversibility_array = Bool[]
         ec_number_array = Union{Missing,String}[]
+        lower_bound_array = Union{Missing,Float64}[]
+        upper_bound_array = Union{Missing,Float64}[]
         ribosomeSymbol = string(ribosomeSymbol)
         total_residue_count = 0
         protein_aa_map = Dict{BioSymbol,Int64}()
@@ -102,13 +115,17 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         push!(reverse_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_closed")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
-
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
+        
         # mRNA_RIBOSOME_closed => mRNA_RIBOSOME_start
         push!(id_array, "mRNA_$(protein_name)_open")
         push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_closed")
         push!(reverse_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, 0.0)
+        push!(upper_bound_array, Inf)
 
         # mRNA_RIBOSOME_translation -
         push!(id_array, "mRNA_$(protein_name)_translation")
@@ -116,6 +133,8 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2 * total_residue_count)*M_gdp_c+$(2 * total_residue_count)*M_pi_c+$(total_residue_count)*tRNA_c")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, 0.0)
+        push!(upper_bound_array, Inf)
 
         # charge the tRNA -
         for residue in aa_biosymbol_array
@@ -133,14 +152,19 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
             push!(reverse_reaction_string, "$(number_of_AA_residue)*$(metabolite_symbol)_tRNA_c+$(number_of_AA_residue)*M_amp_c+$(number_of_AA_residue)*M_ppi_c")
             push!(reversibility_array, false)
             push!(ec_number_array, missing)
+            push!(lower_bound_array, 0.0)
+            push!(upper_bound_array, Inf)
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
+        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
+            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
+    
     catch error
+        
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -160,6 +184,8 @@ function build_transport_reaction_table()::Some
         reverse_reaction_string = String[]
         reversibility_array = Bool[]
         ec_number_array = Union{Missing,String}[]
+        lower_bound_array = Union{Missing,Float64}[]
+        upper_bound_array = Union{Missing,Float64}[]
         aa_biosymbol_array = [
             AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
         ];
@@ -173,13 +199,17 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_h2o_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
-
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
+        
         # add M_ppi_e exchange -
         push!(id_array, "M_ppi_c_exchange")
         push!(forward_reaction_string, "M_ppi_e")
         push!(reverse_reaction_string, "M_ppi_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_amp_c exchange -
         push!(id_array, "M_amp_c_exchange")
@@ -187,6 +217,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_amp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_gmp_c exchange -
         push!(id_array, "M_gmp_c_exchange")
@@ -194,6 +226,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_gmp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_cmp_c exchange -
         push!(id_array, "M_cmp_c_exchange")
@@ -201,6 +235,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_cmp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_ump_c exchange -
         push!(id_array, "M_ump_c_exchange")
@@ -208,7 +244,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_ump_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
-
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_atp_c exchange -
         push!(id_array, "M_atp_c_exchange")
@@ -216,6 +253,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_atp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_gtp_c exchange -
         push!(id_array, "M_gtp_c_exchange")
@@ -223,6 +262,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_gtp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_ctp_c exchange -
         push!(id_array, "M_ctp_c_exchange")
@@ -230,6 +271,8 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_ctp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # add M_utp_c exchange -
         push!(id_array, "M_utp_c_exchange")
@@ -237,13 +280,16 @@ function build_transport_reaction_table()::Some
         push!(reverse_reaction_string, "M_utp_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
-        
         push!(id_array, "tRNA_c_exchange")
         push!(forward_reaction_string, "tRNA_e")
         push!(reverse_reaction_string, "tRNA_c")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
+        push!(lower_bound_array, -Inf)
+        push!(upper_bound_array, Inf)
 
         # transfer AAs -
         for residue in aa_biosymbol_array
@@ -261,10 +307,13 @@ function build_transport_reaction_table()::Some
             push!(reverse_reaction_string, metabolite_symbol_c)
             push!(reversibility_array, true)
             push!(ec_number_array, missing)
+            push!(lower_bound_array, -Inf)
+            push!(upper_bound_array, Inf)
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, ec=ec_number_array)
+        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
+            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
