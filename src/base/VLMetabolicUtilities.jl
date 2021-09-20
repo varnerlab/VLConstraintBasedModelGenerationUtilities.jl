@@ -330,12 +330,42 @@ function build_reaction_id_array(reactionTable::DataFrame)::Some
     end
 end
 
-function build_transport_reaction_table()::Some
+function build_transport_reaction_table(species_pair_array::Array{Pair{String,String},1})::Some
 
     try
 
-        # how do we want to encode this ...
+        # initailize -
+        id_array = String[]
+        forward_reaction_string = String[]
+        reverse_reaction_string = String[]
+        reversibility_array = Bool[]
+        ec_number_array = Union{Missing,String}[]
+        lower_bound_array = Union{Missing,Float64}[]
+        upper_bound_array = Union{Missing,Float64}[]
 
+        # ok, so we have an array of pairs - assume all transport reactions are *reversible* -
+        for transport_pair in species_pair_array
+            
+            # get the a => b
+            first_species = transport_pair.first
+            second_species = transport_pair.second
+
+            # write the record -
+            push!(id_array, "$(first_species)_exchange")
+            push!(forward_reaction_string, first_species)
+            push!(reverse_reaction_string, second_species)
+            push!(reversibility_array, true)
+            push!(ec_number_array, missing)
+            push!(lower_bound_array, -Inf)
+            push!(upper_bound_array, Inf)
+        end
+
+        # package into DataFrame -
+        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
+            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+
+        # return -
+        return Some(reaction_dataframe)
     catch error
 
         # get the original error message -

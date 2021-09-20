@@ -265,14 +265,17 @@ function build_metabolic_reaction_table(path_to_reaction_file::String;
     end
 end
 
-function write_system_model_file(;path::String, stoichiometric_matrix::Array{Float64,2}, species_bounds_array::Array{Float64,2}, 
-    flux_bounds_array::Array{Float64,2}, reaction_table::Union{DataFrame,Nothing}=nothing, objective_coefficient_array::Array{Float64,1})::Some
-
+function write_system_model_file(path::String; kwargs...)::Some
+    
     try
 
         # initialize -
-        system_dictionary = Dict{String,Union{Array{Float64,2},DataFrame,Bool,Nothing}}()
+        kwargs_dictionary = Dict(kwargs)
+        system_dictionary = Dict{String,Any}()
         
+        # package all the key=>value pairs into the system_dictionary -
+        
+
         # pack stuff into the dictionary -
         system_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
         system_dictionary["species_bounds_array"] = species_bounds_array
