@@ -45,4 +45,3 @@ R_ppc,[4.1.1.31],M_co2_c+M_h2o_c+M_pep_c,M_oaa_c+M_pi_c,false
 
 // Pyruvate dehydrogenase (pdh) 1.2.1.4 2.3.1.12 1.8.1.4
 R_pdh,[1.2.1.4; 2.3.1.12; 1.8.1.4],M_coa_c+M_nad_c+M_pyr_c,M_accoa_c+M_co2_c+M_nadh_c+M_h_c,false
-

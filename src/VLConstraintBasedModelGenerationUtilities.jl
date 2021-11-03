@@ -24,7 +24,9 @@ export build_species_bounds_array
 export build_species_table
 export build_species_symbol_table
 export build_stoichiometric_matrix
+export build_atom_matrix
 export build_objective_coefficient_array
+export parse_molecular_formula_string
 
 # file io methods -
 export write_system_model_file

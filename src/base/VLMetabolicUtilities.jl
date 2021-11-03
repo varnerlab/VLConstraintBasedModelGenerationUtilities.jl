@@ -376,4 +376,117 @@ function build_transport_reaction_table(species_pair_array::Array{Pair{String,St
         return Some(vl_error_obj)
     end
 end
+
+function build_atom_matrix(formula_array::Array{String,1}; 
+        elements=["C","H","N","O","P","S"])::Some
+    
+    try
+
+        # initialize -
+        number_of_elements = length(elements)
+        number_of_compounds = length(formula_array)
+        atom_matrix = Array{Number,2}(undef,number_of_elements,number_of_compounds)
+
+        # ok, so let's process this list of formulas -
+        for (formula_index,formula) in enumerate(formula_array)
+
+            # parse -
+            atom_dictionary = parse_molecular_formula_string(formula) |> check
+
+            # fill in the elements -
+            for (element_index,element) in enumerate(elements)
+                
+                # check: do we have this element?
+                get!(atom_dictionary, element, 0)
+                
+                # go -
+                atom_matrix[element_index, formula_index] = atom_dictionary[element]
+            end
+        end
+
+        # return -
+        return Some(atom_matrix)
+    catch error
+
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
+function parse_molecular_formula_string(formula::String)::Some
+    
+    try
+
+        # test -
+        atom_dictionary = Dict();
+        local_array = Array{Char,1}()
+
+        # turn string into char array -
+        formula_char_array = collect(formula);
+
+        # add extra 1 if last char is a letter -
+        if (isnumeric(last(formula_char_array))== false)
+            push!(formula_char_array,'1')
+        end
+
+        # read from the bottom -
+        reverse!(formula_char_array)
+
+        # how many chars do we have?
+        while (isempty(formula_char_array) == false)
+            
+            # clean out the array from the last pass -
+            empty!(local_array)
+
+            # grab the next value -
+            next_value = pop!(formula_char_array)
+            if (isnumeric(next_value) == false)
+                
+                # we have an element -> read until I hit another element -
+                is_ok_to_loop = true
+                while (is_ok_to_loop)
+
+                    if (isempty(formula_char_array) == true)
+                        break
+                    end
+
+                    read_one_ahead = pop!(formula_char_array)
+                    if (isnumeric(read_one_ahead) == true)
+                        push!(local_array,read_one_ahead)
+                    else
+
+                        # ok: so if we get here - then we read the next char, but it was a 
+                        # letter (element) - so we need to puch it back on the stack
+                        push!(formula_char_array,read_one_ahead)
+
+                        # reverse -
+                        is_ok_to_loop = false
+                    end
+                end
+
+                # we need to turn local array into a string -
+                buffer = ""
+                [buffer*=string(x) for x in local_array]
+                atom_dictionary[string(next_value)] = parse(Int64,buffer)
+            end
+        end
+        
+        # return -
+        return Some(atom_dictionary)
+
+    catch error
+
+        # get the original error message -
+        error_message = sprint(showerror, error, catch_backtrace())
+        vl_error_obj = ErrorException(error_message)
+
+        # Package the error -
+        return Some(vl_error_obj)
+    end
+end
+
 # == PUBLIC METHODS ABOVE HERE ======================================================================================== #
