@@ -361,8 +361,8 @@ function build_transport_reaction_table(species_pair_array::Array{Pair{String,St
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
-            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
+            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)

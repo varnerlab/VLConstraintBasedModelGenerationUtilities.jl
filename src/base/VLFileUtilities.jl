@@ -59,8 +59,8 @@ function _build_vff_reaction_table(path_to_reaction_file::String)::DataFrame
     end
 
     # build the df -
-    df_metabolic_reactions = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
-        ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+    df_metabolic_reactions = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
+        ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
     # return -
     return df_metabolic_reactions

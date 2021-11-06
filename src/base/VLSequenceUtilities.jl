@@ -58,8 +58,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(upper_bound_array, Inf)
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
-            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
+            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
@@ -157,8 +157,8 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
-            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
+            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
@@ -312,8 +312,8 @@ function build_txtl_transport_reaction_table()::Some
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward=forward_reaction_string, reverse=reverse_reaction_string, reversibility=reversibility_array, 
-            ec=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
+            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
