@@ -26,3 +26,21 @@ translation_table = build_translation_reaction_table(local_seq_name, local_seq) 
 
 # append reactions into master reaction table -
 master_reaction_table = reduce(vcat, [transcription_table, translation_table])
+
+# get list of species -
+list_of_species = build_species_symbol_array(master_reaction_table; left = :forward_reaction, right = :reverse_reaction) |> check
+
+# build the stoichiometric_matrix -
+stm = build_stoichiometric_matrix(master_reaction_table; left = :forward_reaction, right = :reverse_reaction) |> check
+
+# build the species bounds array -
+species_table = build_species_table(master_reaction_table; left = :forward_reaction, right = :reverse_reaction) |> check
+species_bounds_array = build_species_bounds_array(species_table) |> check
+
+# build the flux bounds array -
+flux_bounds_array = build_flux_bounds_array(master_reaction_table) |> check
+
+# write the system model file -
+path_to_system_model_file = "/Users/jeffreyvarner/Desktop/julia_work/VLConstraintBasedModelGenerationUtilities.jl/test/data/GFP.bson"
+result = write_system_model_file(path = path_to_system_model_file, stoichiometric_matrix = stm,
+    flux_bounds_array = flux_bounds_array, species_bounds_array = species_bounds_array, reaction_table = master_reaction_table, species_table = species_table)

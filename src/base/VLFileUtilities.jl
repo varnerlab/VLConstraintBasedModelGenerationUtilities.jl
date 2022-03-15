@@ -18,24 +18,24 @@ function _build_vff_reaction_table(path_to_reaction_file::String)::DataFrame
 
     # process -
     for (_, reaction_line) in enumerate(vff_file_buffer)
-        
+
         # skip comments and empty lines -
         if (occursin("//", reaction_line) == false && isempty(reaction_line) == false)
-            
+
             # split around ,
             reaction_record_components_array = split(reaction_line, ",")
 
             # process each of the components -
-            
+
             # 1: id -
             push!(id_array, string(reaction_record_components_array[1]))
-            
+
             # 2: ec numbers -
             ec_number_component = reaction_record_components_array[2]
             if (ec_number_component == "[]")
                 push!(ec_number_array, missing)
             else
-                push!(ec_number_array, string(ec_number_component[2:end - 1]))
+                push!(ec_number_array, string(ec_number_component[2:end-1]))
             end
 
             # 3: L phrase -
@@ -59,24 +59,22 @@ function _build_vff_reaction_table(path_to_reaction_file::String)::DataFrame
     end
 
     # build the df -
-    df_metabolic_reactions = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
-        ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+    df_metabolic_reactions = DataFrame(id = id_array, forward_reaction = forward_reaction_string, reverse_reaction = reverse_reaction_string, reversibility = reversibility_array,
+        ec_number = ec_number_array, lower_bound = lower_bound_array, upper_bound = upper_bound_array)
 
     # return -
     return df_metabolic_reactions
 end
 
-function _build_json_reaction_table(path_to_reaction_file::String)::DataFrame
-end
+function _build_json_reaction_table(path_to_reaction_file::String)::DataFrame end
 
-function _build_sbml_reaction_table(path_to_reaction_file::String)::DataFrame
-end
+function _build_sbml_reaction_table(path_to_reaction_file::String)::DataFrame end
 
 # === PRIVATE METHODS ABOVE HERE =================================================================== #
 
 # === PUBLIC METHODS BELOW HERE ==================================================================== #
-function build_gene_table(path_to_gene_file::String; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function build_gene_table(path_to_gene_file::String;
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -91,15 +89,15 @@ function build_gene_table(path_to_gene_file::String;
         end
 
         # create a data frame -
-        sequence_data_frame = DataFrame(id=String[], description=String[], gene_sequence=Union{Missing,BioSequences.LongSequence}[])
+        sequence_data_frame = DataFrame(id = String[], description = String[], gene_sequence = Union{Missing,BioSequences.LongSequence}[])
         sequence_data_record = Union{String,Missing,BioSequences.LongSequence}[]
         for record in local_data_row
-            
+
             # get attributes from record -
             id_value = FASTX.FASTA.identifier(record)
             description_value = FASTX.FASTA.description(record)
             sequence_value = FASTX.FASTA.sequence(record)
-            
+
             # pack -
             push!(sequence_data_record, id_value)
             push!(sequence_data_record, description_value)
@@ -110,7 +108,7 @@ function build_gene_table(path_to_gene_file::String;
         # return -
         return Some(sequence_data_frame)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -120,24 +118,24 @@ function build_gene_table(path_to_gene_file::String;
     end
 end
 
-function build_gene_table(gene_path_array::Array{String,1}; 
-    logger::Union{Nothing,SimpleLogger}=nothing)
+function build_gene_table(gene_path_array::Array{String,1};
+    logger::Union{Nothing,SimpleLogger} = nothing)
 
     try
 
         # initialize -
         gene_table_dictionary::Dict{String,DataFrame}()
 
-         # ok, so let process the array of files -
+        # ok, so let process the array of files -
         for file_path in gene_path_array
-            sequence_data_frame = build_gene_table(file_path; logger=logger) |> check
+            sequence_data_frame = build_gene_table(file_path; logger = logger) |> check
             gene_table_dictionary[file_path] = sequence_data_frame
         end
 
         # return a dictionary of gene tables -
         return Some(gene_table_dictionary)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -147,8 +145,8 @@ function build_gene_table(gene_path_array::Array{String,1};
     end
 end
 
-function build_protein_table(path_to_protein_file::String; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function build_protein_table(path_to_protein_file::String;
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -163,17 +161,17 @@ function build_protein_table(path_to_protein_file::String;
         end
 
         # create a data frame -
-        sequence_data_frame = DataFrame(id=String[], description=String[], protein_sequence=Union{Missing,BioSequences.LongSequence}[])
+        sequence_data_frame = DataFrame(id = String[], description = String[], protein_sequence = Union{Missing,BioSequences.LongSequence}[])
         for record in local_data_row
 
             # init a row -
             sequence_data_record = Union{String,Missing,BioSequences.LongSequence}[]
-            
+
             # get attributes from record -
             id_value = FASTX.FASTA.identifier(record)
             description_value = FASTX.FASTA.description(record)
             sequence_value = FASTX.FASTA.sequence(record)
-            
+
             # pack -
             push!(sequence_data_record, id_value)
             push!(sequence_data_record, description_value)
@@ -184,7 +182,7 @@ function build_protein_table(path_to_protein_file::String;
         # return -
         return Some(sequence_data_frame)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -194,8 +192,8 @@ function build_protein_table(path_to_protein_file::String;
     end
 end
 
-function build_protein_table(protein_path_array::Array{String,1}; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function build_protein_table(protein_path_array::Array{String,1};
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -204,14 +202,14 @@ function build_protein_table(protein_path_array::Array{String,1};
 
         # ok, so let process the array of files -
         for file_path in protein_path_array
-            sequence_data_frame = build_protein_table(file_path; logger=logger) |> check
+            sequence_data_frame = build_protein_table(file_path; logger = logger) |> check
             protein_table_dictionary[file_path] = sequence_data_frame
         end
 
         # return a dictionary of protein tables -
         return Some(protein_table_dictionary)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -221,8 +219,8 @@ function build_protein_table(protein_path_array::Array{String,1};
     end
 end
 
-function build_metabolic_reaction_table(path_to_reaction_file::String; 
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function build_metabolic_reaction_table(path_to_reaction_file::String;
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -255,7 +253,7 @@ function build_metabolic_reaction_table(path_to_reaction_file::String;
         # return -
         return Some(reaction_table)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -265,16 +263,18 @@ function build_metabolic_reaction_table(path_to_reaction_file::String;
     end
 end
 
-function write_system_model_file(path::String; kwargs...)::Some
-    
+function write_system_model_file(; path::String,
+    stoichiometric_matrix::Union{Nothing,Array{Float64,2}} = nothing,
+    flux_bounds_array::Union{Nothing,Array{Float64,2}} = nothing,
+    species_bounds_array::Union{Nothing,Array{Float64,2}} = nothing,
+    objective_coefficient_array::Union{Nothing,Array{Float64,2}} = nothing,
+    reaction_table::Union{Nothing,DataFrame} = nothing,
+    species_table::Union{Nothing,DataFrame} = nothing)::Some
+
     try
 
         # initialize -
-        kwargs_dictionary = Dict(kwargs)
         system_dictionary = Dict{String,Any}()
-        
-        # package all the key=>value pairs into the system_dictionary -
-        
 
         # pack stuff into the dictionary -
         system_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
@@ -282,10 +282,11 @@ function write_system_model_file(path::String; kwargs...)::Some
         system_dictionary["flux_bounds_array"] = flux_bounds_array
         system_dictionary["reaction_table"] = reaction_table
         system_dictionary["objective_coefficient_array"] = objective_coefficient_array
+        system_dictionary["species_table"] = species_table
         system_dictionary["is_minimum_flag"] = true
 
         # write -
-        bson(path, system=system_dictionary)
+        bson(path, system = system_dictionary)
 
         # return -
         return Some(nothing)

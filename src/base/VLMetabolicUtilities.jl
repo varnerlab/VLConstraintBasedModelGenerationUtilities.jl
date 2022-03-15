@@ -7,10 +7,10 @@ function _extract_species_from_phrase(phrase::String)::Array{String,1}
 
     # process each substring -
     for species_substring in species_substring_array
-        
+
         # get the last value after we split for * -
         species_value = string(last(split(species_substring, "*")))
-        
+
         # grab -
         push!(species_array, species_value)
     end
@@ -28,11 +28,11 @@ function _extract_stochiometric_coefficient_from_phrase(phrase::String, species:
 
     # ok: if we get here, then we have this species -
     # split around the +
-    plus_split_product_array = split(phrase, "+") 
+    plus_split_product_array = split(phrase, "+")
 
     # process each component of the phrase -
     for species_substring in plus_split_product_array
-    
+
         # get the values after we split for * -
         tmp_value_array = string.(split(species_substring, "*"))
 
@@ -71,7 +71,8 @@ end
 # == PRIVATE METHODS ABOVE HERE ======================================================================================= #
 
 # == PUBLIC METHODS BELOW HERE ======================================================================================== #
-function build_stoichiometric_matrix(reactionTable::DataFrame, speciesSymbolArray::Array{String,1})::Some
+function build_stoichiometric_matrix(reactionTable::DataFrame, speciesSymbolArray::Array{String,1};
+    left::Symbol = :forward, right::Symbol = :reverse)::Some
 
     try
 
@@ -84,25 +85,25 @@ function build_stoichiometric_matrix(reactionTable::DataFrame, speciesSymbolArra
 
         # main -
         for species_index = 1:number_of_species # rows
-            
+
             # grab species symbol -
             species_symbol = species_symbol_array[species_index]
-        
+
             # does this symbol appear in a reaction?
             for reaction_index = 1:number_of_reactions
-                
+
                 # get the L and R phrases -
-                L = reactionTable[reaction_index,:forward]
-                R = reactionTable[reaction_index,:reverse]
+                L = reactionTable[reaction_index, left]
+                R = reactionTable[reaction_index, right]
 
                 # get the stcoeff from the L phrase -
                 L_st_coeff = _process_left_phrase(L, species_symbol)
-            
+
                 # get the stcoeff from the R phrase -
                 R_st_coeff = _process_right_phrase(R, species_symbol)
-            
+
                 # update the stoichiometric_matrx -
-                stoichiometric_matrx[species_index,reaction_index] = (L_st_coeff + R_st_coeff)
+                stoichiometric_matrx[species_index, reaction_index] = (L_st_coeff + R_st_coeff)
             end
         end
 
@@ -118,13 +119,14 @@ function build_stoichiometric_matrix(reactionTable::DataFrame, speciesSymbolArra
     end
 end
 
-function build_stoichiometric_matrix(reactionTable::DataFrame)::Some
+function build_stoichiometric_matrix(reactionTable::DataFrame;
+    left::Symbol = :forward, right::Symbol = :reverse)::Some
 
-    try 
+    try
 
         # initialize -
-        species_symbol_array = build_species_symbol_array(reactionTable) |> check
-        stoichiometric_matrx = build_stoichiometric_matrix(reactionTable, species_symbol_array) |> check
+        species_symbol_array = build_species_symbol_array(reactionTable; left = left, right = right) |> check
+        stoichiometric_matrx = build_stoichiometric_matrix(reactionTable, species_symbol_array; left = left, right = right) |> check
 
         # return -
         return Some(stoichiometric_matrx)
@@ -138,10 +140,10 @@ function build_stoichiometric_matrix(reactionTable::DataFrame)::Some
     end
 end
 
-function build_flux_bounds_array(reactionTable::DataFrame; defaultFluxBoundValue::Float64=100.0)::Some
+function build_flux_bounds_array(reactionTable::DataFrame; defaultFluxBoundValue::Float64 = 100.0)::Some
 
     try
-        
+
         # initialize -
         reaction_id_array = build_reaction_id_array(reactionTable) |> check
         number_of_reactions = length(reaction_id_array)
@@ -150,15 +152,15 @@ function build_flux_bounds_array(reactionTable::DataFrame; defaultFluxBoundValue
         # iterate through the reaction id's and determine if the reaction is reversible. If so, then build the bounds array 
         # using the default values -
         for (index, id_value) in enumerate(reaction_id_array)
-            
+
             # is this reaction reversible?
-            is_reversible = reactionTable[index,:reversibility]
+            is_reversible = reactionTable[index, :reversibility]
             if (is_reversible == true)
-                flux_bounds_array[index,1] = -1.0 * defaultFluxBoundValue
-                flux_bounds_array[index,2] = defaultFluxBoundValue
+                flux_bounds_array[index, 1] = -1.0 * defaultFluxBoundValue
+                flux_bounds_array[index, 2] = defaultFluxBoundValue
             elseif (is_reversible == false)
-                flux_bounds_array[index,1] = 0.0
-                flux_bounds_array[index,2] = defaultFluxBoundValue
+                flux_bounds_array[index, 1] = 0.0
+                flux_bounds_array[index, 2] = defaultFluxBoundValue
             end
         end
 
@@ -176,7 +178,7 @@ end
 
 function build_species_bounds_array(speciesTable::DataFrame)::Some
 
-    try 
+    try
 
         # initialize -
         (number_of_species, _) = size(speciesTable)
@@ -184,20 +186,20 @@ function build_species_bounds_array(speciesTable::DataFrame)::Some
 
         # main -
         for species_index = 1:number_of_species
-            
+
             # get data for bounds array -
             lower_bound = speciesTable[species_index, :lower_bound]
             upper_bound = speciesTable[species_index, :upper_bound]
 
             # package -
-            species_bounds_array[species_index,1] = lower_bound
-            species_bounds_array[species_index,2] = upper_bound
+            species_bounds_array[species_index, 1] = lower_bound
+            species_bounds_array[species_index, 2] = upper_bound
         end
 
         # return -
         return Some(species_bounds_array)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -207,20 +209,20 @@ function build_species_bounds_array(speciesTable::DataFrame)::Some
     end
 end
 
-function build_species_table(reactionTable::DataFrame)::Some
+function build_species_table(reactionTable::DataFrame; left::Symbol = :forward, right::Symbol = :reverse)::Some
 
     try
 
         # initialize -
-        species_symbol_array = build_species_symbol_array(reactionTable) |> check
-        df_species_table = DataFrame(symbol=String[], name=Union{String,Missing}[], lower_bound=Float64[], upper_bound=Float64[])
+        species_symbol_array = build_species_symbol_array(reactionTable; left = left, right = right) |> check
+        df_species_table = DataFrame(symbol = String[], name = Union{String,Missing}[], lower_bound = Float64[], upper_bound = Float64[])
 
         # main -
         for species_symbol in species_symbol_array
-            
+
             # create a tuple w/the data row -
             data_row = (species_symbol, missing, 0.0, 0.0)
-            
+
             # add to the df -
             push!(df_species_table, data_row)
         end
@@ -238,21 +240,22 @@ function build_species_table(reactionTable::DataFrame)::Some
     end
 end
 
-function build_species_symbol_array(reactionTable::DataFrame)::Some
+function build_species_symbol_array(reactionTable::DataFrame;
+    left::Symbol = :forward, right::Symbol = :reverse)::Some
 
     try
-        
+
         # initialize -
         species_symbol_array = Array{String,1}()
         reaction_phrase_array = Array{String,1}()
         (number_of_reactions, _) = size(reactionTable)
-        
+
         # populate the array of reaction phrases -
         for reaction_index = 1:number_of_reactions
-            
+
             # get the L and R phrases -
-            L = reactionTable[reaction_index,:forward]
-            R = reactionTable[reaction_index,:reverse]
+            L = reactionTable[reaction_index, left]
+            R = reactionTable[reaction_index, right]
 
             # capture -
             push!(reaction_phrase_array, L)
@@ -261,7 +264,7 @@ function build_species_symbol_array(reactionTable::DataFrame)::Some
 
         # ok, so now lets populate the tmp species set -
         for reaction_phrase in reaction_phrase_array
-            
+
             # get species sub array -
             species_in_reaction_phrase = _extract_species_from_phrase(reaction_phrase)
 
@@ -276,7 +279,7 @@ function build_species_symbol_array(reactionTable::DataFrame)::Some
         # return -
         return Some(species_symbol_array)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -295,7 +298,7 @@ function build_objective_coefficient_array(reactionTable::DataFrame)::Some
 
         # default behavior -
         obj_coeff_array = zeros(number_of_reactions)
-        
+
         # return -
         return Some(obj_coeff_array)
 
@@ -313,14 +316,14 @@ end
 function build_reaction_id_array(reactionTable::DataFrame)::Some
 
     try
-        
+
         # get the id col -
-        id_col = reactionTable[!,:id]
-    
+        id_col = reactionTable[!, :id]
+
         # return -
         return Some(id_col)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -345,7 +348,7 @@ function build_transport_reaction_table(species_pair_array::Array{Pair{String,St
 
         # ok, so we have an array of pairs - assume all transport reactions are *reversible* -
         for transport_pair in species_pair_array
-            
+
             # get the a => b
             first_species = transport_pair.first
             second_species = transport_pair.second
@@ -361,8 +364,8 @@ function build_transport_reaction_table(species_pair_array::Array{Pair{String,St
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
-            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id = id_array, forward_reaction = forward_reaction_string, reverse_reaction = reverse_reaction_string, reversibility = reversibility_array,
+            ec_number = ec_number_array, lower_bound = lower_bound_array, upper_bound = upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
@@ -377,28 +380,28 @@ function build_transport_reaction_table(species_pair_array::Array{Pair{String,St
     end
 end
 
-function build_atom_matrix(formula_array::Array{String,1}; 
-        elements=["C","H","N","O","P","S"])::Some
-    
+function build_atom_matrix(formula_array::Array{String,1};
+    elements = ["C", "H", "N", "O", "P", "S"])::Some
+
     try
 
         # initialize -
         number_of_elements = length(elements)
         number_of_compounds = length(formula_array)
-        atom_matrix = Array{Number,2}(undef,number_of_elements,number_of_compounds)
+        atom_matrix = Array{Number,2}(undef, number_of_elements, number_of_compounds)
 
         # ok, so let's process this list of formulas -
-        for (formula_index,formula) in enumerate(formula_array)
+        for (formula_index, formula) in enumerate(formula_array)
 
             # parse -
             atom_dictionary = parse_molecular_formula_string(formula) |> check
 
             # fill in the elements -
-            for (element_index,element) in enumerate(elements)
-                
+            for (element_index, element) in enumerate(elements)
+
                 # check: do we have this element?
                 get!(atom_dictionary, element, 0)
-                
+
                 # go -
                 atom_matrix[element_index, formula_index] = atom_dictionary[element]
             end
@@ -418,19 +421,19 @@ function build_atom_matrix(formula_array::Array{String,1};
 end
 
 function parse_molecular_formula_string(formula::String)::Some
-    
+
     try
 
         # test -
-        atom_dictionary = Dict();
+        atom_dictionary = Dict()
         local_array = Array{Char,1}()
 
         # turn string into char array -
-        formula_char_array = collect(formula);
+        formula_char_array = collect(formula)
 
         # add extra 1 if last char is a letter -
-        if (isnumeric(last(formula_char_array))== false)
-            push!(formula_char_array,'1')
+        if (isnumeric(last(formula_char_array)) == false)
+            push!(formula_char_array, '1')
         end
 
         # read from the bottom -
@@ -438,14 +441,14 @@ function parse_molecular_formula_string(formula::String)::Some
 
         # how many chars do we have?
         while (isempty(formula_char_array) == false)
-            
+
             # clean out the array from the last pass -
             empty!(local_array)
 
             # grab the next value -
             next_value = pop!(formula_char_array)
             if (isnumeric(next_value) == false)
-                
+
                 # we have an element -> read until I hit another element -
                 is_ok_to_loop = true
                 while (is_ok_to_loop)
@@ -456,12 +459,12 @@ function parse_molecular_formula_string(formula::String)::Some
 
                     read_one_ahead = pop!(formula_char_array)
                     if (isnumeric(read_one_ahead) == true)
-                        push!(local_array,read_one_ahead)
+                        push!(local_array, read_one_ahead)
                     else
 
                         # ok: so if we get here - then we read the next char, but it was a 
                         # letter (element) - so we need to puch it back on the stack
-                        push!(formula_char_array,read_one_ahead)
+                        push!(formula_char_array, read_one_ahead)
 
                         # reverse -
                         is_ok_to_loop = false
@@ -470,11 +473,11 @@ function parse_molecular_formula_string(formula::String)::Some
 
                 # we need to turn local array into a string -
                 buffer = ""
-                [buffer*=string(x) for x in local_array]
-                atom_dictionary[string(next_value)] = parse(Int64,buffer)
+                [buffer *= string(x) for x in local_array]
+                atom_dictionary[string(next_value)] = parse(Int64, buffer)
             end
         end
-        
+
         # return -
         return Some(atom_dictionary)
 

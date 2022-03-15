@@ -1,5 +1,5 @@
-function build_transcription_reaction_table(gene_name::String, sequence::BioSequences.LongSequence; 
-    polymeraseSymbol::Symbol=:RNAP, ecnumber::String="2.7.7.6", logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function build_transcription_reaction_table(gene_name::String, sequence::BioSequences.LongSequence;
+    polymeraseSymbol::Symbol = :RNAP, ecnumber::String = "2.7.7.6", logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -19,21 +19,21 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         number_of_C = count(sequence, DNA_C)
         number_of_G = count(sequence, DNA_G)
         total_nucleotides = number_of_A + number_of_U + number_of_C + number_of_G
-        
+
         # setup reactions -
         # gene + RNAP <=> gene_RNAP_closed
-        push!(id_array, "$(gene_name)_binding")
-        push!(forward_reaction_string, "$(gene_name)+$(polymeraseSymbol)")
-        push!(reverse_reaction_string, "$(gene_name)_$(polymeraseSymbol)_closed")
+        push!(id_array, "TX_$(gene_name)_binding")
+        push!(forward_reaction_string, "G_$(gene_name)+$(polymeraseSymbol)")
+        push!(reverse_reaction_string, "G_$(gene_name)_$(polymeraseSymbol)_closed")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
         push!(lower_bound_array, -Inf)
         push!(upper_bound_array, Inf)
 
         # gene_RNAP_closed => gene_RNAP_open
-        push!(id_array, "$(gene_name)_open")
-        push!(forward_reaction_string, "$(gene_name)_$(polymeraseSymbol)_closed")
-        push!(reverse_reaction_string, "$(gene_name)_$(polymeraseSymbol)_open")
+        push!(id_array, "TX_$(gene_name)_open")
+        push!(forward_reaction_string, "G_$(gene_name)_$(polymeraseSymbol)_closed")
+        push!(reverse_reaction_string, "G_$(gene_name)_$(polymeraseSymbol)_open")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
         push!(lower_bound_array, 0.0)
@@ -41,8 +41,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
 
         # transcription -
         push!(id_array, "$(gene_name)_transcription")
-        push!(forward_reaction_string, "$(gene_name)_$(polymeraseSymbol)_open+$(number_of_A)*M_atp_c+$(number_of_U)*M_utp_c+$(number_of_C)*M_ctp_c+$(number_of_G)*M_gtp_c+$(total_nucleotides)*M_h2o_c")
-        push!(reverse_reaction_string, "mRNA_$(gene_name)+$(gene_name)+$(polymeraseSymbol)+$(total_nucleotides)*M_ppi_c")
+        push!(forward_reaction_string, "G_$(gene_name)_$(polymeraseSymbol)_open+$(number_of_A)*M_atp_c+$(number_of_U)*M_utp_c+$(number_of_C)*M_ctp_c+$(number_of_G)*M_gtp_c+$(total_nucleotides)*M_h2o_c")
+        push!(reverse_reaction_string, "mRNA_$(gene_name)+G_$(gene_name)+$(polymeraseSymbol)+$(total_nucleotides)*M_ppi_c")
         push!(reversibility_array, false)
         push!(ec_number_array, ecnumber)
         push!(lower_bound_array, 0.0)
@@ -58,13 +58,13 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
         push!(upper_bound_array, Inf)
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
-            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id = id_array, forward_reaction = forward_reaction_string, reverse_reaction = reverse_reaction_string, reversibility = reversibility_array,
+            ec_number = ec_number_array, lower_bound = lower_bound_array, upper_bound = upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -74,8 +74,8 @@ function build_transcription_reaction_table(gene_name::String, sequence::BioSequ
     end
 end
 
-function build_translation_reaction_table(protein_name::String, sequence::BioSequences.LongAminoAcidSeq; 
-    ribosomeSymbol::Symbol=:RIBOSOME, ecnumber::String="3.1.27.10", logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function build_translation_reaction_table(protein_name::String, sequence::BioSequences.LongAminoAcidSeq;
+    ribosomeSymbol::Symbol = :RIBOSOME, ecnumber::String = "3.1.27.10", logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -92,7 +92,7 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         protein_aa_map = Dict{BioSymbol,Int64}()
         aa_biosymbol_array = [
             AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
-        ];
+        ]
 
         # load AA map -
         aa_metabolite_map = TOML.parsefile(joinpath(_PATH_TO_CONFIG, "AAMap.toml"))
@@ -107,17 +107,17 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
             number_per_AA = protein_aa_map[residue]
             total_residue_count = total_residue_count + number_per_AA
         end
-        
+
         # setup reactions -
         # mRNA + RIBOSOME <=> mRNA_RIBOSOME_closed
-        push!(id_array, "$(protein_name)_binding")
+        push!(id_array, "TL_$(protein_name)_binding")
         push!(forward_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)")
         push!(reverse_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_closed")
         push!(reversibility_array, true)
         push!(ec_number_array, missing)
         push!(lower_bound_array, -Inf)
         push!(upper_bound_array, Inf)
-        
+
         # mRNA_RIBOSOME_closed => mRNA_RIBOSOME_start
         push!(id_array, "mRNA_$(protein_name)_open")
         push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_closed")
@@ -129,16 +129,34 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
 
         # mRNA_RIBOSOME_translation -
         push!(id_array, "mRNA_$(protein_name)_translation")
-        push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start+$(2 * total_residue_count)*M_gtp_c+$(2 * total_residue_count)*M_h2o_c")
+
+        # we need to formulate the forward reaction string -
+        tmp_tRNA_phrase = ""
+        for residue in aa_biosymbol_array
+
+            # get the key symbol -
+            key_value = "AA_" * (string(residue))
+
+            # get the number and M_* of this residue -
+            number_of_AA_residue = protein_aa_map[residue]
+            metabolite_symbol = aa_metabolite_map[key_value]
+            tmp_tRNA_phrase *= "$(number_of_AA_residue)*$(metabolite_symbol)_tRNA_c+"
+        end
+        tRNA_phrase = tmp_tRNA_phrase[1:end-1]
+
+
+        push!(forward_reaction_string, "mRNA_$(protein_name)_$(ribosomeSymbol)_start+$(2 * total_residue_count)*M_gtp_c+$(2 * total_residue_count)*M_h2o_c+$(tRNA_phrase)")
         push!(reverse_reaction_string, "mRNA_$(protein_name)+$(ribosomeSymbol)+P_$(protein_name)+$(2 * total_residue_count)*M_gdp_c+$(2 * total_residue_count)*M_pi_c+$(total_residue_count)*tRNA_c")
         push!(reversibility_array, false)
         push!(ec_number_array, missing)
         push!(lower_bound_array, 0.0)
         push!(upper_bound_array, Inf)
 
+
+
         # charge the tRNA -
         for residue in aa_biosymbol_array
-            
+
             # get the key symbol -
             key_value = "AA_" * (string(residue))
 
@@ -147,7 +165,7 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
             metabolite_symbol = aa_metabolite_map[key_value]
 
             # build the reaction record -
-            push!(id_array, "tRNA_charging_$(metabolite_symbol)_$(protein_name)")            
+            push!(id_array, "tRNA_charging_$(metabolite_symbol)_$(protein_name)")
             push!(forward_reaction_string, "$(number_of_AA_residue)*$(metabolite_symbol)+$(number_of_AA_residue)*M_atp_c+$(number_of_AA_residue)*tRNA_c+$(number_of_AA_residue)*M_h2o_c")
             push!(reverse_reaction_string, "$(number_of_AA_residue)*$(metabolite_symbol)_tRNA_c+$(number_of_AA_residue)*M_amp_c+$(number_of_AA_residue)*M_ppi_c")
             push!(reversibility_array, false)
@@ -157,14 +175,14 @@ function build_translation_reaction_table(protein_name::String, sequence::BioSeq
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
-            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id = id_array, forward_reaction = forward_reaction_string, reverse_reaction = reverse_reaction_string, reversibility = reversibility_array,
+            ec_number = ec_number_array, lower_bound = lower_bound_array, upper_bound = upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
-    
+
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -188,7 +206,7 @@ function build_txtl_transport_reaction_table()::Some
         upper_bound_array = Union{Missing,Float64}[]
         aa_biosymbol_array = [
             AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V
-        ];
+        ]
 
         # load AA map -
         aa_metabolite_map = TOML.parsefile(joinpath(_PATH_TO_CONFIG, "AAMap.toml"))
@@ -201,7 +219,7 @@ function build_txtl_transport_reaction_table()::Some
         push!(ec_number_array, missing)
         push!(lower_bound_array, -Inf)
         push!(upper_bound_array, Inf)
-        
+
         # add M_ppi_e exchange -
         push!(id_array, "M_ppi_c_exchange")
         push!(forward_reaction_string, "M_ppi_e")
@@ -293,7 +311,7 @@ function build_txtl_transport_reaction_table()::Some
 
         # transfer AAs -
         for residue in aa_biosymbol_array
-            
+
             # get the key symbol -
             key_value = "AA_" * (string(residue))
 
@@ -312,13 +330,13 @@ function build_txtl_transport_reaction_table()::Some
         end
 
         # package into DataFrame -
-        reaction_dataframe = DataFrame(id=id_array, forward_reaction=forward_reaction_string, reverse_reaction=reverse_reaction_string, reversibility=reversibility_array, 
-            ec_number=ec_number_array, lower_bound=lower_bound_array, upper_bound=upper_bound_array)
+        reaction_dataframe = DataFrame(id = id_array, forward_reaction = forward_reaction_string, reverse_reaction = reverse_reaction_string, reversibility = reversibility_array,
+            ec_number = ec_number_array, lower_bound = lower_bound_array, upper_bound = upper_bound_array)
 
         # return -
         return Some(reaction_dataframe)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -328,8 +346,8 @@ function build_txtl_transport_reaction_table()::Some
     end
 end
 
-function transcribe(sequence::BioSequences.LongSequence; complementOperation::Function=!, 
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+function transcribe(sequence::BioSequences.LongSequence; complementOperation::Function = !,
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
 
@@ -352,7 +370,7 @@ function transcribe(sequence::BioSequences.LongSequence; complementOperation::Fu
         # return -
         return Some(new_seq_from_array)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -362,8 +380,8 @@ function transcribe(sequence::BioSequences.LongSequence; complementOperation::Fu
     end
 end
 
-function transcribe(table::DataFrame, complementOperation::Function=!; 
-    logger::Union{Nothing,SimpleLogger}=nothing)
+function transcribe(table::DataFrame, complementOperation::Function = !;
+    logger::Union{Nothing,SimpleLogger} = nothing)
 
     try
 
@@ -373,13 +391,13 @@ function transcribe(table::DataFrame, complementOperation::Function=!;
         # get the length of the table -
         (number_of_rows, _) = size(table)
         for row_index = 1:number_of_rows
-            
+
             # get id -
             sequence_id = table[row_index, :id]
             sequence = table[row_index, :sequence]
 
             # transcribe -
-            result = transcribe_sequence(sequence, complementOperation; logger=logger) |> check
+            result = transcribe_sequence(sequence, complementOperation; logger = logger) |> check
 
             # package -
             transcription_dictionary[sequence_id] = result
@@ -388,7 +406,7 @@ function transcribe(table::DataFrame, complementOperation::Function=!;
         # return -
         return Some(transcription_dictionary)
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -399,11 +417,11 @@ function transcribe(table::DataFrame, complementOperation::Function=!;
 end
 
 function translate(sequence::BioSequences.LongAminoAcidSeq, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
     try
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
@@ -414,7 +432,7 @@ function translate(sequence::BioSequences.LongAminoAcidSeq, complementOperation:
 end
 
 function translate(table::DataFrame, complementOperation::Function;
-    logger::Union{Nothing,SimpleLogger}=nothing)::Some
+    logger::Union{Nothing,SimpleLogger} = nothing)::Some
 
 
     try
@@ -422,13 +440,13 @@ function translate(table::DataFrame, complementOperation::Function;
         # get the size of the table -
         (number_of_proteins, _) = size(table)
         for protein_index in number_of_proteins
-            
+
             # get the sequence -
             protein_seq = table[protein_index, :protein_sequence]
         end
 
     catch error
-        
+
         # get the original error message -
         error_message = sprint(showerror, error, catch_backtrace())
         vl_error_obj = ErrorException(error_message)
